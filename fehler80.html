@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fehlersuche: Russische Possessivadjektive</title>
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 { color: var(--primary-color); text-align: center; }
+
+        .intro-box {
+            background: #eef6fc;
+            padding: 20px;
+            border-left: 5px solid var(--secondary-color);
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .text-block {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            line-height: 2.2;
+            user-select: none;
+        }
+
+        /* Wort-Styling */
+        .word {
+            display: inline-block;
+            padding: 0 5px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .word:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* Sofort-Feedback Klassen */
+        .is-correct-click {
+            background-color: #d4edda !important;
+            color: #155724 !important;
+            border: 1px solid var(--success-color) !important;
+            font-weight: bold;
+        }
+
+        .is-wrong-click {
+            background-color: #f8d7da !important;
+            color: #721c24 !important;
+            border: 1px solid var(--error-color) !important;
+        }
+
+        .solution-hint {
+            font-size: 0.9rem;
+            color: var(--success-color);
+            margin-left: 4px;
+            font-weight: normal;
+        }
+
+        .instructions {
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .counter {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+
+        .btn-reset { background-color: #95a5a6; color: white; }
+        .btn-sol { background-color: var(--secondary-color); color: white; }
+        button:hover { opacity: 0.8; }
+
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            .text-block { font-size: 1.1rem; line-height: 2.5; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Russische Grammatik</h1>
+    <h2>Aufgabe 6: Fehlersuche (Direktes Feedback)</h2>
+
+    <div class="intro-box">
+        <h3>Anleitung</h3>
+        <p>In jedem der drei Texte befinden sich <b>drei Grammatikfehler</b> bei den Possessivadjektiven. 
+        Klicke auf die Wörter, um sie zu prüfen:</p>
+        <ul>
+            <li><span style="color: var(--success-color); font-weight: bold;">Grün:</span> Richtig! Du hast einen Fehler gefunden.</li>
+            <li><span style="color: var(--error-color); font-weight: bold;">Rot:</span> Dieses Wort war bereits korrekt.</li>
+        </ul>
+    </div>
+
+    <!-- Text 1 -->
+    <div class="exercise-section" id="section-1">
+        <span class="instructions">Text 1: Vaters Sachen</span>
+        <div class="counter" id="count-1">Gefundene Fehler: 0 / 3</div>
+        <div class="text-block" id="text-1"></div>
+        <div class="controls">
+            <button class="btn-reset" onclick="resetText(1)">Text zurücksetzen</button>
+            <button class="btn-sol" onclick="showSolution(1)">Lösungen anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Text 2 -->
+    <div class="exercise-section" id="section-2">
+        <span class="instructions">Text 2: Unterwegs in Andrejewo</span>
+        <div class="counter" id="count-2">Gefundene Fehler: 0 / 3</div>
+        <div class="text-block" id="text-2"></div>
+        <div class="controls">
+            <button class="btn-reset" onclick="resetText(2)">Text zurücksetzen</button>
+            <button class="btn-sol" onclick="showSolution(2)">Lösungen anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Text 3 -->
+    <div class="exercise-section" id="section-3">
+        <span class="instructions">Text 3: Vaters Freunde</span>
+        <div class="counter" id="count-3">Gefundene Fehler: 0 / 3</div>
+        <div class="text-block" id="text-3"></div>
+        <div class="controls">
+            <button class="btn-reset" onclick="resetText(3)">Text zurücksetzen</button>
+            <button class="btn-sol" onclick="showSolution(3)">Lösungen anzeigen</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const textsData = {
+        1: {
+            content: "Я видел отцова пиджак. Рядом лежала отцов сумка. Я пошёл к отцову другу.",
+            // Fehler-Indizes: 2 (отцова -> отцов), 6 (отцов -> отцова), 10 (отцову -> ?) - Moment, korrigieren wir Kontext:
+            // "отцова пиджак" (Falsch, Mask Nom/Akk unbelebt)
+            // "отцов сумка" (Falsch, Fem Nom)
+            // "отцову другу" (Moment, das ist Dativ Maskulinum und korrekt!)
+            // Korrigierte Fehlerdaten für Text 1:
+            words: ["Я", "видел", "отцова", "пиджак.", "Рядом", "лежала", "отцов", "сумка.", "Я", "пошёл", "к", "отцовых", "другу."],
+            errors: [2, 6, 11], 
+            solutions: {
+                2: "отцов",    // Mask. Akk. unbelebt
+                6: "отцова",   // Fem. Nom.
+                11: "отцову"   // Mask. Dat.
+            }
+        },
+        2: {
+            words: ["Мы", "долго", "жили", "в", "селе", "Андреевом.", "Там", "мы", "говорили", "об", "Андреевом", "Сергее.", "Мы", "сидели", "в", "отцове", "саду."],
+            errors: [5, 10, 15],
+            solutions: {
+                5: "Андрееве",  // Ort (Präp.)
+                10: "Андрееве", // Name (Präp.)
+                15: "отцовом"   // Besitz (Präp.)
+            }
+        },
+        3: {
+            words: ["У", "меня", "нет", "отцовы", "ботинок.", "Это", "отцовые", "друзья.", "Я", "горжусь", "Сергеевом", "Сергеем."],
+            errors: [3, 6, 10],
+            solutions: {
+                3: "отцовых",   // Plural Genitiv
+                6: "отцовы",    // Plural Nominativ (Possessivform)
+                10: "Сергеевым" // Name Instrumental
+            }
+        }
+    };
+
+    let foundErrors = { 1: [], 2: [], 3: [] };
+
+    function init() {
+        for (let id in textsData) {
+            renderText(id);
+        }
+    }
+
+    function renderText(id) {
+        const container = document.getElementById('text-' + id);
+        container.innerHTML = "";
+        const data = textsData[id];
+        
+        data.words.forEach((w, i) => {
+            const span = document.createElement('span');
+            span.className = 'word';
+            span.id = `t${id}-w${i}`;
+            span.innerText = w;
+            span.onclick = () => handleWordClick(id, i);
+            container.appendChild(span);
+            // Leerzeichen hinzufügen
+            container.appendChild(document.createTextNode(" "));
+        });
+        updateCounter(id);
+    }
+
+    function handleWordClick(textId, wordIdx) {
+        const data = textsData[textId];
+        const wordEl = document.getElementById(`t${textId}-w${wordIdx}`);
+        
+        // Wenn bereits richtig gefunden, nichts tun
+        if (wordEl.classList.contains('is-correct-click')) return;
+
+        if (data.errors.includes(wordIdx)) {
+            // Richtig geklickt (Fehler gefunden)
+            wordEl.classList.add('is-correct-click');
+            wordEl.classList.remove('is-wrong-click');
+            if (!foundErrors[textId].includes(wordIdx)) {
+                foundErrors[textId].push(wordIdx);
+            }
+        } else {
+            // Falsch geklickt (Wort war korrekt)
+            wordEl.classList.add('is-wrong-click');
+        }
+        updateCounter(textId);
+    }
+
+    function updateCounter(id) {
+        const countEl = document.getElementById('count-' + id);
+        countEl.innerText = `Gefundene Fehler: ${foundErrors[id].length} / 3`;
+        if (foundErrors[id].length === 3) {
+            countEl.style.color = "var(--success-color)";
+            countEl.style.fontWeight = "bold";
+        } else {
+            countEl.style.color = "#666";
+            countEl.style.fontWeight = "normal";
+        }
+    }
+
+    function resetText(id) {
+        foundErrors[id] = [];
+        renderText(id);
+    }
+
+    function showSolution(id) {
+        const data = textsData[id];
+        data.errors.forEach(idx => {
+            const wordEl = document.getElementById(`t${id}-w${idx}`);
+            if (!wordEl.classList.contains('is-correct-click')) {
+                wordEl.classList.add('is-correct-click');
+                // Lösung daneben anzeigen
+                const sol = data.solutions[idx];
+                const solSpan = document.createElement('span');
+                solSpan.className = 'solution-hint';
+                solSpan.innerText = `(${sol})`;
+                wordEl.appendChild(solSpan);
+                if (!foundErrors[id].includes(idx)) {
+                    foundErrors[id].push(idx);
+                }
+            }
+        });
+        updateCounter(id);
+    }
+
+    window.onload = init;
+</script>
+
+</body>
+</html>
