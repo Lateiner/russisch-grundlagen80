@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akkusativ-Check: Belebt vs. Unbelebt</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-bg: #d4edda;
+            --success-border: #28a745;
+            --error-bg: #f8d7da;
+            --error-border: #dc3545;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 { color: var(--primary-color); text-align: center; }
+
+        .intro-section {
+            background: #eef6fc;
+            padding: 20px;
+            border-left: 5px solid var(--secondary-color);
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .rule-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .rule {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #d1d9e0;
+            font-size: 0.95rem;
+        }
+
+        .exercise-card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            background: #fafafa;
+        }
+
+        .sentence {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .type-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .animate { background: #ffeaa7; color: #d35400; }
+        .inanimate { background: #dfe6e9; color: #636e72; }
+
+        select {
+            font-size: 1rem;
+            padding: 5px 10px;
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .correct {
+            background-color: var(--success-bg) !important;
+            border-color: var(--success-border) !important;
+            color: #155724 !important;
+        }
+
+        .incorrect {
+            background-color: var(--error-bg) !important;
+            border-color: var(--error-border) !important;
+            color: #721c24 !important;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .btn-reset { background: #95a5a6; color: white; }
+        .btn-sol { background: var(--secondary-color); color: white; }
+
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            .rule-box { grid-template-columns: 1fr; }
+            .sentence { font-size: 1rem; }
+            select { width: 100%; margin: 10px 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Russische Grammatik</h1>
+    <h2>Aufgabe 9: Akkusativ-Check (Maskulinum)</h2>
+
+    <div class="intro-section">
+        <h3>Einführung: Belebt vs. Unbelebt</h3>
+        <p>Im russischen Akkusativ Maskulinum hängt die Endung des Possessivadjektivs davon ab, ob das Objekt lebt oder nicht:</p>
+        <div class="rule-box">
+            <div class="rule">
+                <b>Belebt (Personen/Tiere)</b><br>
+                Akkusativ = Genitiv<br>
+                <i>Beispiel: Я вижу отцов<b>а</b> друга.</i>
+            </div>
+            <div class="rule">
+                <b>Unbelebt (Sachen/Abstrakta)</b><br>
+                Akkusativ = Nominativ<br>
+                <i>Beispiel: Я вижу отцов<b>ø</b> стол.</i>
+            </div>
+        </div>
+    </div>
+
+    <div id="exercise-list">
+        <!-- Aufgaben werden per JS generiert -->
+    </div>
+</div>
+
+<script>
+    const exercises = [
+        { q: "Я вижу {input} друга.", hint: "Vaters Freund", type: "Belebt", opts: ["отцов", "отцова"], ans: "отцова" },
+        { q: "Я вижу {input} стол.", hint: "Vaters Tisch", type: "Unbelebt", opts: ["отцов", "отцова"], ans: "отцов" },
+        { q: "Мы встретили {input} соседа.", hint: "Andrejs Nachbarn", type: "Belebt", opts: ["Андреев", "Андреева"], ans: "Андреева" },
+        { q: "Они купили {input} дом.", hint: "Andrejs Haus", type: "Unbelebt", opts: ["Андреев", "Андреева"], ans: "Андреев" },
+        { q: "Ты знаешь {input} брата?", hint: "Vaters Bruder", type: "Belebt", opts: ["отцов", "отцова"], ans: "отцова" },
+        { q: "Я взял {input} карандаш.", hint: "Vaters Bleistift", type: "Unbelebt", opts: ["отцов", "отцова"], ans: "отцов" },
+        { q: "Он ищет {input} кота.", hint: "Sergejs Kater", type: "Belebt", opts: ["Сергеев", "Сергеева"], ans: "Сергеева" },
+        { q: "Я читаю {input} проект.", hint: "Sergejs Projekt", type: "Unbelebt", opts: ["Сергеев", "Сергеева"], ans: "Сергеев" },
+        { q: "Она позвала {input} сына.", hint: "Vaters Sohn", type: "Belebt", opts: ["отцов", "отцова"], ans: "отцова" },
+        { q: "Мы ищем {input} адрес.", hint: "Vaters Adresse", type: "Unbelebt", opts: ["отцов", "отцова"], ans: "отцов" },
+        { q: "Вы видели {input} учителя?", hint: "Alexejs Lehrer", type: "Belebt", opts: ["Алексеев", "Алексеева"], ans: "Алексеева" },
+        { q: "Я потерял {input} рюкзак.", hint: "Alexejs Rucksack", type: "Unbelebt", opts: ["Алексеев", "Алексеева"], ans: "Алексеев" },
+        { q: "Мы пригласили {input} гостя.", hint: "Vaters Gast", type: "Belebt", opts: ["отцов", "отцова"], ans: "отцова" },
+        { q: "Я открыл {input} шкаф.", hint: "Vaters Schrank", type: "Unbelebt", opts: ["отцов", "отцова"], ans: "отцов" },
+        { q: "Они слушали {input} рассказ.", hint: "Großvaters Erzählung", type: "Unbelebt", opts: ["дедов", "дедова"], ans: "дедов" }
+    ];
+
+    function render() {
+        const list = document.getElementById('exercise-list');
+        exercises.forEach((ex, i) => {
+            const card = document.createElement('div');
+            card.className = 'exercise-card';
+
+            const sentence = document.createElement('div');
+            sentence.className = 'sentence';
+            
+            const parts = ex.q.split('{input}');
+            sentence.appendChild(document.createTextNode(`${i + 1}. ${parts[0]}`));
+
+            const sel = document.createElement('select');
+            sel.id = `sel-${i}`;
+            sel.innerHTML = `<option value="">---</option>` + 
+                            ex.opts.map(o => `<option value="${o}">${o}</option>`).join('');
+            
+            sel.onchange = () => {
+                if (sel.value === "") sel.className = "";
+                else if (sel.value === ex.ans) sel.className = "correct";
+                else sel.className = "incorrect";
+            };
+
+            sentence.appendChild(sel);
+            sentence.appendChild(document.createTextNode(`${parts[1]} [${ex.hint}]`));
+
+            const badge = document.createElement('span');
+            badge.className = `type-badge ${ex.type === "Belebt" ? "animate" : "inanimate"}`;
+            badge.innerText = ex.type;
+            sentence.appendChild(badge);
+
+            const btnGroup = document.createElement('div');
+            btnGroup.className = 'btn-group';
+            
+            const btnRes = document.createElement('button');
+            btnRes.className = 'btn-reset';
+            btnRes.innerText = 'Reset';
+            btnRes.onclick = () => { sel.value = ""; sel.className = ""; };
+
+            const btnSol = document.createElement('button');
+            btnSol.className = 'btn-sol';
+            btnSol.innerText = 'Lösung';
+            btnSol.onclick = () => { sel.value = ex.ans; sel.className = "correct"; };
+
+            btnGroup.appendChild(btnRes);
+            btnGroup.appendChild(btnSol);
+
+            card.appendChild(sentence);
+            card.appendChild(btnGroup);
+            list.appendChild(card);
+        });
+    }
+
+    window.onload = render;
+</script>
+
+</body>
+</html>
