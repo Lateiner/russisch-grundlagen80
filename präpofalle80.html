@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Die Präpositional-Falle: -ом vs. -е</title>
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-bg: #d4edda;
+            --success-border: #28a745;
+            --error-bg: #f8d7da;
+            --error-border: #dc3545;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 { color: var(--primary-color); text-align: center; margin-bottom: 10px; }
+
+        .intro-section {
+            background: #eef6fc;
+            padding: 20px;
+            border-left: 5px solid var(--secondary-color);
+            border-radius: 4px;
+            margin-bottom: 30px;
+        }
+
+        .rule-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .rule {
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #d1d9e0;
+        }
+
+        .exercise-card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            background: #fafafa;
+            transition: all 0.3s;
+        }
+
+        .sentence {
+            font-size: 1.15rem;
+            margin-bottom: 10px;
+            line-height: 1.8;
+        }
+
+        .context-hint {
+            display: inline-block;
+            background: #eee;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #555;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+
+        select {
+            font-size: 1.1rem;
+            padding: 4px 8px;
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.3s, background-color 0.3s;
+        }
+
+        .correct {
+            background-color: var(--success-bg) !important;
+            border-color: var(--success-border) !important;
+            color: #155724 !important;
+        }
+
+        .incorrect {
+            background-color: var(--error-bg) !important;
+            border-color: var(--error-border) !important;
+            color: #721c24 !important;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .btn-reset { background-color: #95a5a6; color: white; }
+        .btn-sol { background-color: var(--secondary-color); color: white; }
+
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            .rule-box { grid-template-columns: 1fr; }
+            .sentence { font-size: 1rem; }
+            select { width: 100%; margin: 10px 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Russische Grammatik</h1>
+    <h2>Aufgabe 3: Die Präpositional-Falle</h2>
+
+    <div class="intro-section">
+        <h3>Einführung</h3>
+        <p>Im 6. Fall (Präpositional) gibt es bei Wörtern auf -ОВ / -ЕВ eine wichtige Unterscheidung:</p>
+        <div class="rule-box">
+            <div class="rule">
+                <b>-ОМ (Besitz)</b><br>
+                Wenn es ein Adjektiv ist, das einem Gegenstand gehört.<br>
+                <i>Beispiel: об отцов<b>ом</b> саде</i>
+            </div>
+            <div class="rule">
+                <b>-Е (Name / Ort)</b><br>
+                Wenn es ein Nachname einer Person oder ein Ortsname ist.<br>
+                <i>Beispiel: об Андреев<b>е</b></i>
+            </div>
+        </div>
+    </div>
+
+    <div id="exercise-list">
+        <!-- JS generiert die 20 Aufgaben -->
+    </div>
+</div>
+
+<script>
+    const exercises = [
+        { q: "Мы говорим об отцов", suf: "ом", context: "Besitz: Vaters Sakko", end: " пиджаке." },
+        { q: "Мы говорим о Сергее Андреев", suf: "е", context: "Nachname: Herr Andrejew", end: "." },
+        { q: "Я живу в Андреев", suf: "е", context: "Ort: Dorf Andrejewo", end: "." },
+        { q: "Мы думаем о дедов", suf: "ом", context: "Besitz: Großvaters Haus", end: " доме." },
+        { q: "Она мечтает о Павлов", suf: "е", context: "Nachname: Herr Pawlow", end: "." },
+        { q: "Вчера мы были в Павлов", suf: "е", context: "Ort: Stadt Pawlowo", end: "." },
+        { q: "Книга лежит в братов", suf: "ом", context: "Besitz: des Bruders Rucksack", end: " рюкзаке." },
+        { q: "Мы читали об Иванов", suf: "е", context: "Nachname: Herr Iwanow", end: "." },
+        { q: "Самолёт приземлился в Внуков", suf: "е", context: "Ort: Flughafen Wnukowo", end: "." },
+        { q: "Дети играют в соседлев", suf: "ом", context: "Besitz: des Nachbarn Garten", end: " саду." },
+        { q: "Мы спорим о Сергеев", suf: "е", context: "Nachname: Herr Sergejew", end: "." },
+        { q: "Они живут в Одинцов", suf: "е", context: "Ort: Stadt Odinzowo", end: "." },
+        { q: "Что ты знаешь об Андреев", suf: "ом", context: "Besitz: Andrejs Projekt", end: " проекте?" },
+        { q: "Мы слышали о Кузнецов", suf: "е", context: "Nachname: Herr Kusnezow", end: "." },
+        { q: "Летом я отдыхал в Саратов", suf: "е", context: "Ort: Stadt Saratow (Spezialfall: wie Name)", end: "." },
+        { q: "Мы живём в отцов", suf: "ом", context: "Besitz: Vaters Haus", end: " доме." },
+        { q: "Фильм о Пётре Васильев", suf: "е", context: "Nachname: Herr Wassiljew", end: "." },
+        { q: "Я нашёл ошибку в Сергеев", suf: "ом", context: "Besitz: Sergejs Brief", end: " письме." },
+        { q: "Мы были на экскурсии в Царицын", suf: "е", context: "Ort: Zarizyno", end: "." },
+        { q: "Всё дело в дедов", suf: "ом", context: "Besitz: Großvaters Testament", end: " завещании." }
+    ];
+
+    function render() {
+        const container = document.getElementById('exercise-list');
+        exercises.forEach((ex, i) => {
+            const card = document.createElement('div');
+            card.className = 'exercise-card';
+
+            const sentence = document.createElement('div');
+            sentence.className = 'sentence';
+            sentence.innerHTML = `<span>${i + 1}. ${ex.q}</span>`;
+
+            const select = document.createElement('select');
+            select.id = `sel-${i}`;
+            select.innerHTML = `
+                <option value="">--?</option>
+                <option value="ом">ом</option>
+                <option value="е">е</option>
+            `;
+
+            select.onchange = () => {
+                if (select.value === ex.suf) {
+                    select.className = "correct";
+                } else if (select.value === "") {
+                    select.className = "";
+                } else {
+                    select.className = "incorrect";
+                }
+            };
+
+            const endText = document.createElement('span');
+            endText.innerText = ex.end;
+
+            const hint = document.createElement('span');
+            hint.className = 'context-hint';
+            hint.innerText = ex.context;
+
+            sentence.appendChild(select);
+            sentence.appendChild(endText);
+            sentence.appendChild(hint);
+
+            const btnGroup = document.createElement('div');
+            btnGroup.className = 'button-group';
+
+            const btnRes = document.createElement('button');
+            btnRes.className = 'btn-reset';
+            btnRes.innerText = 'Zurücksetzen';
+            btnRes.onclick = () => {
+                select.value = "";
+                select.className = "";
+            };
+
+            const btnSol = document.createElement('button');
+            btnSol.className = 'btn-sol';
+            btnSol.innerText = 'Lösung';
+            btnSol.onclick = () => {
+                select.value = ex.suf;
+                select.className = "correct";
+            };
+
+            btnGroup.appendChild(btnRes);
+            btnGroup.appendChild(btnSol);
+
+            card.appendChild(sentence);
+            card.appendChild(btnGroup);
+            container.appendChild(card);
+        });
+    }
+
+    window.onload = render;
+</script>
+
+</body>
+</html>
