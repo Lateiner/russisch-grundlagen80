@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kategorisierung: Russische Possessivadjektive</title>
+    <!-- Polyfill für Touch-Geräte -->
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --error-color: #e74c3c;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 { color: var(--primary-color); text-align: center; margin-bottom: 10px; }
+
+        .intro-box {
+            background: #eef6fc;
+            padding: 15px;
+            border-left: 5px solid var(--secondary-color);
+            border-radius: 4px;
+            margin-bottom: 25px;
+        }
+
+        /* Drag Bereich */
+        .word-pool {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 15px;
+            background: #f9f9f9;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            min-height: 100px;
+            justify-content: center;
+        }
+
+        .draggable-word {
+            padding: 8px 15px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 20px;
+            cursor: grab;
+            user-select: none;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+
+        .draggable-word:active { cursor: grabbing; }
+
+        /* Drop Spalten */
+        .drop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .drop-column {
+            background: #fff;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        .drop-column h3 {
+            margin-top: 0;
+            font-size: 1.1rem;
+            color: var(--secondary-color);
+            border-bottom: 2px solid #eee;
+            width: 100%;
+            text-align: center;
+            padding-bottom: 5px;
+        }
+
+        .drop-column.drag-over {
+            background: #e1f5fe;
+            border-color: var(--secondary-color);
+        }
+
+        /* Feedback Farben */
+        .word-in-column {
+            margin: 5px 0;
+            width: 90%;
+            text-align: center;
+            padding: 5px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .word-correct { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .word-incorrect { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+        /* Steuerung */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+
+        .btn-reset { background-color: #95a5a6; color: white; }
+        .btn-sol { background-color: var(--secondary-color); color: white; }
+        button:hover { opacity: 0.8; }
+
+        @media (max-width: 600px) {
+            .drop-grid { grid-template-columns: 1fr 1fr; }
+            .container { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Russische Grammatik</h1>
+    <h2>Aufgabe 2: Kategorisierung (Drag & Drop)</h2>
+
+    <div class="intro-box">
+        <h3>Einführung</h3>
+        <p>Ziehe die folgenden Possessivadjektive in die richtige Spalte nach ihrem <b>Genus</b> (Geschlecht) oder <b>Numerus</b> (Mehrzahl). Achte darauf, dass manche Formen in mehrere Kategorien passen könnten!</p>
+        <p><i>Hinweis: Das Feedback erfolgt sofort beim Ablegen.</i></p>
+    </div>
+
+    <!-- Pool der Wörter -->
+    <div class="word-pool" id="word-pool" ondrop="dropToPool(event)" ondragover="allowDrop(event)">
+        <!-- Wörter werden per JS geladen -->
+    </div>
+
+    <!-- Zielspalten -->
+    <div class="drop-grid">
+        <div class="drop-column" id="mask" data-type="M" ondrop="dropToColumn(event)" ondragover="allowDrop(event)">
+            <h3>Maskulinum</h3>
+        </div>
+        <div class="drop-column" id="fem" data-type="F" ondrop="dropToColumn(event)" ondragover="allowDrop(event)">
+            <h3>Femininum</h3>
+        </div>
+        <div class="drop-column" id="neut" data-type="N" ondrop="dropToColumn(event)" ondragover="allowDrop(event)">
+            <h3>Neutrum</h3>
+        </div>
+        <div class="drop-column" id="plur" data-type="P" ondrop="dropToColumn(event)" ondragover="allowDrop(event)">
+            <h3>Plural</h3>
+        </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="controls">
+        <button class="btn-reset" onclick="resetExercise()">Zurücksetzen</button>
+        <button class="btn-sol" onclick="showSolution()">Lösungen anzeigen</button>
+    </div>
+</div>
+
+<script>
+    // Daten: Wörter und ihre gültigen Kategorien (M=Mask, F=Fem, N=Neut, P=Plur)
+    const wordData = [
+        { text: "отцов", types: ["M"] },
+        { text: "отцова", types: ["F", "M", "N"] }, // Nom.F, Gen.M, Gen.N
+        { text: "отцову", types: ["F", "M", "N"] }, // Akk.F, Dat.M, Dat.N
+        { text: "отцово", types: ["N"] },
+        { text: "отцовы", types: ["P"] },
+        { text: "Андреев", types: ["M"] },
+        { text: "Андреева", types: ["F", "M", "N"] },
+        { text: "Андрееву", types: ["F", "M", "N"] },
+        { text: "Андреево", types: ["N"] },
+        { text: "Андреевы", types: ["P"] },
+        { text: "отцовых", types: ["P"] },
+        { text: "отцовым", types: ["M", "N", "P"] }, // Inst.M/N, Dat.P
+        { text: "отцовыми", types: ["P"] },
+        { text: "Андреевой", types: ["F"] },
+        { text: "дедов", types: ["M"] },
+        { text: "дедова", types: ["F", "M", "N"] },
+        { text: "дедово", types: ["N"] },
+        { text: "дедовы", types: ["P"] },
+        { text: "Сергеев", types: ["M"] },
+        { text: "Сергеева", types: ["F", "M", "N"] }
+    ];
+
+    const pool = document.getElementById('word-pool');
+    const columns = document.querySelectorAll('.drop-column');
+
+    // Initialisierung
+    function init() {
+        pool.innerHTML = '';
+        // Zufällige Reihenfolge
+        const shuffled = [...wordData].sort(() => Math.random() - 0.5);
+        
+        shuffled.forEach((word, index) => {
+            const div = document.createElement('div');
+            div.className = 'draggable-word';
+            div.innerText = word.text;
+            div.draggable = true;
+            div.id = 'word-' + index;
+            div.dataset.types = JSON.stringify(word.types);
+            div.ondragstart = drag;
+            pool.appendChild(div);
+        });
+    }
+
+    // Drag & Drop Funktionen
+    function allowDrop(ev) {
+        ev.preventDefault();
+        if (ev.currentTarget.classList.contains('drop-column')) {
+            ev.currentTarget.classList.add('drag-over');
+        }
+    }
+
+    function drag(ev) {
+        ev.dataTransfer.setData("text", ev.target.id);
+        // Spalten-Highlights entfernen beim Start
+        columns.forEach(col => col.classList.remove('drag-over'));
+    }
+
+    function dropToColumn(ev) {
+        ev.preventDefault();
+        const col = ev.currentTarget;
+        col.classList.remove('drag-over');
+        
+        const wordId = ev.dataTransfer.getData("text");
+        const wordEl = document.getElementById(wordId);
+        const allowedTypes = JSON.parse(wordEl.dataset.types);
+        const colType = col.dataset.type;
+
+        // Erstelle Element in der Spalte
+        const placedWord = document.createElement('div');
+        placedWord.className = 'word-in-column';
+        placedWord.innerText = wordEl.innerText;
+        
+        if (allowedTypes.includes(colType)) {
+            placedWord.classList.add('word-correct');
+        } else {
+            placedWord.classList.add('word-incorrect');
+        }
+
+        col.appendChild(placedWord);
+        wordEl.style.display = 'none'; // Verstecke im Pool
+    }
+
+    function dropToPool(ev) {
+        ev.preventDefault();
+        // Das Zurücklegen in den Pool ist in dieser einfachen Version 
+        // über den Reset-Button gelöst.
+    }
+
+    // Steuerung
+    function resetExercise() {
+        columns.forEach(col => {
+            const words = col.querySelectorAll('.word-in-column');
+            words.forEach(w => w.remove());
+        });
+        init();
+    }
+
+    function showSolution() {
+        resetExercise();
+        const poolWords = document.querySelectorAll('.draggable-word');
+        poolWords.forEach(wordEl => {
+            const allowedTypes = JSON.parse(wordEl.dataset.types);
+            const primaryType = allowedTypes[0]; // Nimm den ersten gültigen Typ
+            
+            let targetId = '';
+            switch(primaryType) {
+                case 'M': targetId = 'mask'; break;
+                case 'F': targetId = 'fem'; break;
+                case 'N': targetId = 'neut'; break;
+                case 'P': targetId = 'plur'; break;
+            }
+
+            const col = document.getElementById(targetId);
+            const placedWord = document.createElement('div');
+            placedWord.className = 'word-in-column word-correct';
+            placedWord.innerText = wordEl.innerText;
+            col.appendChild(placedWord);
+            wordEl.style.display = 'none';
+        });
+    }
+
+    // CSS Feedback beim Verlassen der Spalte
+    document.addEventListener('dragleave', (ev) => {
+        if (ev.target.classList.contains('drop-column')) {
+            ev.target.classList.remove('drag-over');
+        }
+    });
+
+    window.onload = init;
+</script>
+
+</body>
+</html>
