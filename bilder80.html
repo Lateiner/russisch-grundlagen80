@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bild-Zuordnung: Russische Possessivadjektive (12 Übungen)</title>
+    <!-- Polyfill für Touch-Geräte -->
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success-bg: #d4edda;
+            --success-border: #28a745;
+            --error-bg: #f8d7da;
+            --error-border: #dc3545;
+            --bg: #f4f7f6;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: #333;
+            margin: 0;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 20px auto;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 { text-align: center; color: var(--primary); margin-bottom: 10px; }
+
+        .intro-box {
+            background: #eef6fc;
+            padding: 20px;
+            border-left: 6px solid var(--secondary);
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        /* Galerie-Layout */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .photo-card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .photo-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+
+        /* Visualisierung der "Fotos" */
+        .visual-frame {
+            background: #fdfdfd;
+            border: 8px solid #fff;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05), 0 2px 5px rgba(0,0,0,0.1);
+            height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .owner-badge { 
+            position: absolute; 
+            bottom: 8px; 
+            right: 8px; 
+            font-size: 1.8rem; 
+            background: white; 
+            border-radius: 50%; 
+            padding: 4px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2); 
+            line-height: 1;
+        }
+        
+        .object-icon { font-size: 5rem; }
+
+        .owner-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .sentence {
+            font-size: 1.05rem;
+            margin: 10px 0 15px 0;
+            line-height: 1.5;
+        }
+
+        /* Interaktive Elemente */
+        select {
+            padding: 6px 8px;
+            font-size: 1rem;
+            border: 2px solid #ced4da;
+            border-radius: 6px;
+            background-color: white;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .correct { background-color: var(--success-bg) !important; border-color: var(--success-border) !important; color: #155724 !important; }
+        .incorrect { background-color: var(--error-bg) !important; border-color: var(--error-border) !important; color: #721c24 !important; }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: auto;
+        }
+
+        button {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.8rem;
+            transition: opacity 0.2s;
+        }
+
+        .btn-reset { background: #adb5bd; color: white; }
+        .btn-sol { background: var(--secondary); color: white; }
+        button:hover { opacity: 0.9; }
+
+        @media (max-width: 600px) {
+            .gallery-grid { grid-template-columns: 1fr; }
+            select { width: 100%; margin: 8px 0; }
+            .btn-group { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Russische Grammatik</h1>
+    <h2>Aufgabe 8: Bild-Besitzer-Zuordnung (12 Übungen)</h2>
+
+    <div class="intro-box">
+        <h3>Anleitung</h3>
+        <p>Betrachte die 12 "Fotos". Jedes zeigt einen <b>Gegenstand</b> (groß) und seinen <b>Besitzer</b> (kleines Icon unten rechts). Wähle die grammatikalisch korrekte Form des Possessivadjektivs (-ОВ, -ЕВ) aus, die zum Gegenstand passt.</p>
+        <p><i>Fokus: Übereinstimmung in Genus (m, f, n) und Numerus (pl).</i></p>
+    </div>
+
+    <div class="gallery-grid" id="gallery">
+        <!-- Karten werden per JS generiert -->
+    </div>
+</div>
+
+<script>
+    const exercises = [
+        { id: 1, owner: "👨 (отец)", object: "💼 (чемодан, m)", q: "Чей это чемодан?", s1: "Это ", s2: " чемодан.", opts: ["отцов", "отцова", "отцово"], ans: "отцов" },
+        { id: 2, owner: "👨‍💼 (Андреев)", object: "👜 (сумка, f)", q: "Чья это сумка?", s1: "Это ", s2: " сумка.", opts: ["Андреев", "Андреева", "Андреево"], ans: "Андреева" },
+        { id: 3, owner: "👴 (дед)", object: "✉️ (письмо, n)", q: "Чьё это письмо?", s1: "Это ", s2: " письмо.", opts: ["дедов", "дедова", "дедово"], ans: "дедово" },
+        { id: 4, owner: "👨‍⚕️ (врач)", object: "📱 (телефон, m)", q: "Чей это телефон?", s1: "Это ", s2: " телефон.", opts: ["врачев", "врачева", "врачево"], ans: "врачев" },
+        { id: 5, owner: "👨 (отец)", object: "🍏 (яблоко, n)", q: "Чьё это яблоко?", s1: "Это ", s2: " яблоко.", opts: ["отцов", "отцова", "отцово"], ans: "отцово" },
+        { id: 6, owner: "🧔 (сосед)", object: "🔑 (ключи, pl)", q: "Чьи это ключи?", s1: "Это ", s2: " ключи.", opts: ["соседов", "соседовы", "соседова"], ans: "соседовы" },
+        { id: 7, owner: "👦 (брат)", object: "🏠 (дом, m)", q: "Чей это дом?", s1: "Это ", s2: " дом.", opts: ["братов", "братова", "братово"], ans: "братов" },
+        { id: 8, owner: "👨‍💼 (Сергеев)", object: "👞 (ботинки, pl)", q: "Чьи это ботинки?", s1: "Это ", s2: " ботинки.", opts: ["Сергеев", "Сергеевы", "Сергеева"], ans: "Сергеевы" },
+        { id: 9, owner: "👨‍🍳 (повар)", object: "🔪 (нож, m)", q: "Чей это нож?", s1: "Это ", s2: " нож.", opts: ["поваров", "поварова", "поварово"], ans: "поваров" },
+        { id: 10, owner: "🚢 (матрос)", object: "🧢 (шапка, f)", q: "Чья это шапка?", s1: "Это ", s2: " шапка.", opts: ["матросов", "матросова", "матросово"], ans: "матросова" },
+        { id: 11, owner: "👱 (Иван)", object: "🪟 (окно, n)", q: "Чьё это окно?", s1: "Это ", s2: " окно.", opts: ["Иванов", "Иванова", "Иваново"], ans: "Иваново" },
+        { id: 12, owner: "👨‍🎨 (Пётр)", object: "📖 (книга, f)", q: "Чья это книга?", s1: "Это ", s2: " книга.", opts: ["Петров", "Петрова", "Петровы"], ans: "Петрова" }
+    ];
+
+    function init() {
+        const gallery = document.getElementById('gallery');
+        exercises.forEach((ex) => {
+            const card = document.createElement('div');
+            card.className = 'photo-card';
+            card.id = `card-${ex.id}`;
+
+            const objectEmoji = ex.object.split(' ')[0];
+            const ownerEmoji = ex.owner.split(' ')[0];
+
+            card.innerHTML = `
+                <div class="visual-frame">
+                    <span class="object-icon">${objectEmoji}</span>
+                    <span class="owner-badge">${ownerEmoji}</span>
+                </div>
+                <span class="owner-label">Besitzer: ${ex.owner}</span>
+                <span class="sentence"><b>${ex.q}</b></span>
+                <div class="sentence">
+                    ${ex.s1}
+                    <select id="sel-${ex.id}" onchange="checkAns(${ex.id}, '${ex.ans}')">
+                        <option value="">---</option>
+                        ${ex.opts.map(o => `<option value="${o}">${o}</option>`).join('')}
+                    </select>
+                    ${ex.s2}
+                </div>
+                <div class="btn-group">
+                    <button class="btn-reset" onclick="resetCard(${ex.id})">Reset</button>
+                    <button class="btn-sol" onclick="showSol(${ex.id}, '${ex.ans}')">Lösung</button>
+                </div>
+            `;
+            gallery.appendChild(card);
+        });
+    }
+
+    window.checkAns = function(id, correct) {
+        const sel = document.getElementById(`sel-${id}`);
+        if (sel.value === "") {
+            sel.className = "";
+        } else if (sel.value === correct) {
+            sel.className = "correct";
+        } else {
+            sel.className = "incorrect";
+        }
+    };
+
+    window.resetCard = function(id) {
+        const sel = document.getElementById(`sel-${id}`);
+        sel.value = "";
+        sel.className = "";
+    };
+
+    window.showSol = function(id, correct) {
+        const sel = document.getElementById(`sel-${id}`);
+        sel.value = correct;
+        sel.className = "correct";
+    };
+
+    window.onload = init;
+</script>
+
+</body>
+</html>
