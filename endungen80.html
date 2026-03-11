@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Endungs-Puzzle: Deklinationstabelle</title>
+    <!-- Polyfill für Touch-Geräte -->
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-bg: #d4edda;
+            --success-border: #28a745;
+            --error-bg: #f8d7da;
+            --error-border: #dc3545;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: #333;
+            margin: 0;
+            padding: 15px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 { color: var(--primary-color); text-align: center; }
+
+        .intro-box {
+            background: #eef6fc;
+            padding: 20px;
+            border-left: 5px solid var(--secondary-color);
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        /* Endungs-Pool */
+        .pool-container {
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+            background: #fff;
+            padding: 15px;
+            border: 2px solid var(--secondary-color);
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .pool-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+            text-align: center;
+        }
+
+        .ending-pool {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .drag-item {
+            padding: 6px 12px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 4px;
+            cursor: grab;
+            font-weight: bold;
+            user-select: none;
+            touch-action: none;
+        }
+
+        .drag-item:active { cursor: grabbing; }
+
+        /* Tabellen-Styling */
+        .table-wrapper {
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        th, td {
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            color: var(--primary-color);
+        }
+
+        .stem {
+            color: #777;
+            font-family: monospace;
+        }
+
+        /* Drop-Zonen */
+        .drop-zone {
+            display: inline-block;
+            width: 50px;
+            height: 30px;
+            border: 2px dashed #bdc3c7;
+            border-radius: 4px;
+            vertical-align: middle;
+            background: #fff;
+            transition: all 0.2s;
+        }
+
+        .drop-zone.drag-over {
+            border-color: var(--secondary-color);
+            background: #e1f5fe;
+        }
+
+        .drop-zone.correct {
+            background-color: var(--success-bg);
+            border-color: var(--success-border);
+            color: #155724;
+            border-style: solid;
+            font-weight: bold;
+        }
+
+        .drop-zone.incorrect {
+            background-color: var(--error-bg);
+            border-color: var(--error-border);
+            color: #721c24;
+            border-style: solid;
+        }
+
+        /* Buttons */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-reset { background: #6c757d; color: white; }
+        .btn-sol { background: var(--secondary-color); color: white; }
+
+        @media (max-width: 768px) {
+            .table-wrapper { border: 0; }
+            table, thead, tbody, th, td, tr { display: block; }
+            thead tr { position: absolute; top: -9999px; left: -9999px; }
+            tr { border: 1px solid #ccc; margin-bottom: 15px; }
+            td { border: none; position: relative; padding-left: 50%; text-align: left; }
+            td:before {
+                position: absolute; top: 10px; left: 10px; width: 45%; 
+                padding-right: 10px; white-space: nowrap; font-weight: bold;
+            }
+            /* Spaltenbeschriftung für Mobile */
+            td:nth-of-type(1):before { content: "Fall"; }
+            td:nth-of-type(2):before { content: "Maskulinum"; }
+            td:nth-of-type(3):before { content: "Femininum"; }
+            td:nth-of-type(4):before { content: "Plural"; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Russische Grammatik</h1>
+    <h2>Aufgabe 7: Endungs-Puzzle (Tabelle)</h2>
+
+    <div class="intro-box">
+        <h3>Anleitung</h3>
+        <p>Vervollständige die Deklinationstabelle für das Wort <b>отцов</b> (Vaters). Ziehe die passenden Endungen aus dem blauen Kasten in die Lücken der Tabelle. </p>
+        <p><i>Hinweis: Das Feedback erfolgt sofort. Endungen können mehrfach im Pool vorkommen.</i></p>
+    </div>
+
+    <div class="pool-container">
+        <span class="pool-title">Endungs-Pool:</span>
+        <div class="ending-pool" id="pool">
+            <!-- Endungen werden per JS gemischt -->
+        </div>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Fall (Kasus)</th>
+                    <th>Maskulinum</th>
+                    <th>Femininum</th>
+                    <th>Plural</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                <!-- Zeilen werden per JS generiert -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="controls">
+        <button class="btn-reset" onclick="resetExercise()">Tabelle zurücksetzen</button>
+        <button class="btn-sol" onclick="showSolution()">Lösungen anzeigen</button>
+    </div>
+</div>
+
+<script>
+    const declensionData = [
+        { case: "Nominativ", m: "", f: "а", p: "ы" },
+        { case: "Genitiv", m: "а", f: "ой", p: "ых" },
+        { case: "Dativ", m: "у", f: "ой", p: "ым" },
+        { case: "Akkusativ (unbel.)", m: "", f: "у", p: "ы" },
+        { case: "Instrumental", m: "ым", f: "ой", p: "ыми" },
+        { case: "Präpositional", m: "ом", f: "ой", p: "ых" }
+    ];
+
+    // Alle benötigten Endungen für den Pool (inkl. leere für Nom/Akk Mask)
+    const allEndings = ["а", "ы", "а", "ой", "ых", "у", "ой", "ым", "у", "ы", "ым", "ой", "ыми", "ом", "ой", "ых", "ø", "ø"];
+
+    function init() {
+        const pool = document.getElementById('pool');
+        const tbody = document.getElementById('table-body');
+        pool.innerHTML = '';
+        tbody.innerHTML = '';
+
+        // Pool mischen
+        const shuffled = [...allEndings].sort(() => Math.random() - 0.5);
+        shuffled.forEach((end, i) => {
+            const div = document.createElement('div');
+            div.className = 'drag-item';
+            div.innerText = end === "ø" ? "---" : "-" + end;
+            div.dataset.val = end === "ø" ? "" : end;
+            div.draggable = true;
+            div.id = `end-${i}`;
+            div.addEventListener('dragstart', (e) => e.dataTransfer.setData('text', e.target.id));
+            pool.appendChild(div);
+        });
+
+        // Tabelle aufbauen
+        declensionData.forEach((row, rowIdx) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><b>${row.case}</b></td>
+                <td><span class="stem">отцов</span><div class="drop-zone" data-ans="${row.m}"></div></td>
+                <td><span class="stem">отцов</span><div class="drop-zone" data-ans="${row.f}"></div></td>
+                <td><span class="stem">отцов</span><div class="drop-zone" data-ans="${row.p}"></div></td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // Drop-Zonen Events
+        document.querySelectorAll('.drop-zone').forEach(zone => {
+            zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('drag-over'); });
+            zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+            zone.addEventListener('drop', handleDrop);
+        });
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        const zone = e.currentTarget;
+        zone.classList.remove('drag-over');
+        
+        const id = e.dataTransfer.getData('text');
+        const draggedEl = document.getElementById(id);
+        const val = draggedEl.dataset.val;
+
+        zone.innerText = val === "" ? "---" : "-" + val;
+
+        if (val === zone.dataset.ans) {
+            zone.className = "drop-zone correct";
+            draggedEl.style.visibility = "hidden";
+        } else {
+            zone.className = "drop-zone incorrect";
+            setTimeout(() => {
+                if(zone.className.includes('incorrect')) {
+                    zone.innerText = "";
+                    zone.className = "drop-zone";
+                }
+            }, 800);
+        }
+    }
+
+    function resetExercise() {
+        init();
+    }
+
+    function showSolution() {
+        document.querySelectorAll('.drop-zone').forEach(zone => {
+            const ans = zone.dataset.ans;
+            zone.innerText = ans === "" ? "---" : "-" + ans;
+            zone.className = "drop-zone correct";
+        });
+        document.querySelectorAll('.drag-item').forEach(item => item.style.visibility = "hidden");
+    }
+
+    window.onload = init;
+</script>
+
+</body>
+</html>
